@@ -1,0 +1,56 @@
+name: release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows-x64:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
+      # 链接 libpcap/wpcap 需要 Npcap SDK；构建期只需要 wpcap.lib，
+      # 不需要安装 Npcap 本身（那是目标机器的运行期依赖）。
+      # 版本写死，避免上游更新导致链接行为变化。
+      - name: Download Npcap SDK
+        shell: pwsh
+        run: |
+          $sdkDir = Join-Path $env:RUNNER_TEMP 'npcap-sdk'
+          $zip    = Join-Path $env:RUNNER_TEMP 'npcap-sdk.zip'
+          Invoke-WebRequest -Uri 'https://npcap.com/dist/npcap-sdk-1.16.zip' -OutFile $zip
+          Expand-Archive -Path $zip -DestinationPath $sdkDir -Force
+          $libDir = Join-Path $sdkDir 'Lib\x64'
+          "LIBPCAP_LIBDIR=$libDir" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          Get-ChildItem $libDir
+
+      - name: Build release artifacts
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\build-release.ps1
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: port-scan-rs-windows-x64
+          path: |
+            dist/*.zip
+            dist/*.zip.sha256
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*.zip
+            dist/*.zip.sha256
+          generate_release_notes: true

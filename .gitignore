@@ -1,0 +1,18 @@
+# Rust 构建产物
+/target
+
+# 发布/中间产物
+/dist
+/out
+
+# 抓包输出（test.pcap 是示例文件，保留）
+*.pcap
+!test.pcap
+
+# 未被代码引用的字体（微软雅黑，18MB，且不可再分发）
+/assets/fonts/msyh.ttc
+
+# 编辑器
+.vscode/
+.idea/
+*.swp

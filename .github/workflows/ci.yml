@@ -1,0 +1,37 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
+      # cargo check 不链接，理论上不需要 SDK；这里仍然准备好链接搜索路径，
+      # 方便以后在 CI 里加 build / test 步骤。
+      - name: Download Npcap SDK
+        shell: pwsh
+        run: |
+          $sdkDir = Join-Path $env:RUNNER_TEMP 'npcap-sdk'
+          $zip    = Join-Path $env:RUNNER_TEMP 'npcap-sdk.zip'
+          Invoke-WebRequest -Uri 'https://npcap.com/dist/npcap-sdk-1.16.zip' -OutFile $zip
+          Expand-Archive -Path $zip -DestinationPath $sdkDir -Force
+          "LIBPCAP_LIBDIR=$(Join-Path $sdkDir 'Lib\x64')" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: cargo check (default features)
+        run: cargo check --all-targets
+
+      - name: cargo check (pcap feature)
+        run: cargo check --all-targets --features pcap

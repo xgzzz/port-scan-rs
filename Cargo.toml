@@ -1,0 +1,46 @@
+[package]
+name = "port-scan-rs"
+version = "0.2.0"
+edition = "2021"
+description = "本地端口检测、抓包与 pcap 分析工具（CLI + GUI）"
+license = "MIT"
+repository = "https://github.com/xgzzz/port-scan-rs"
+homepage = "https://github.com/xgzzz/port-scan-rs"
+readme = "README.md"
+keywords = ["port-scan", "pcap", "packet-capture", "network", "cli"]
+categories = ["command-line-utilities", "network-programming"]
+rust-version = "1.75"
+
+[dependencies]
+clap = { version = "4", features = ["derive"] }
+tokio = { version = "1", features = ["full"] }
+hex = "0.4"
+chrono = "0.4"
+colored = "2"
+anyhow = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+# 终端表格按字符显示宽度对齐（中文占 2 列）
+unicode-width = "0.1"
+eframe = "0.29"
+egui = "0.29"
+rfd = "0.14"
+# 可选的网卡抓包后端，仅在启用 `pcap` 特性时编译
+pcap = { version = "2", optional = true }
+
+[target.'cfg(windows)'.dependencies]
+windows = { version = "0.58", features = [
+    "Win32_Foundation",
+    "Win32_System_Threading",
+    # 用于运行期探测 Npcap 的 wpcap.dll 是否可加载
+    "Win32_System_LibraryLoader",
+] }
+
+[features]
+default = []
+# 启用网卡抓包（需系统已安装 libpcap / Npcap）
+pcap = ["dep:pcap"]
+
+[[bin]]
+name = "port-scan-rs"
+path = "src/main.rs"
