@@ -10,6 +10,33 @@ pub mod capture_engine;
 /// 嵌入中文字体：文泉驿微米黑（Apache-2.0，可自由再分发），解决 GUI 中文乱码
 const CN_FONT_BYTES: &[u8] = include_bytes!("../../assets/fonts/wqy-microhei.ttc");
 
+/// 双击控制台程序（`port-scan-rs.exe`）时，系统会自动开一个控制台黑窗口；
+/// 这里把它隐藏掉，只留下 GUI 窗口。
+///
+/// 只在“这个控制台只属于我们自己”时才动手，避免把用户正开着的终端窗口一起隐藏。
+/// 专用的 `port-scan-rs-gui.exe` 是 Windows 子系统程序，本来就没有控制台，无需调用。
+#[cfg(windows)]
+pub fn hide_console_if_owned() {
+    use windows::Win32::System::Console::{GetConsoleProcessList, GetConsoleWindow};
+    use windows::Win32::UI::WindowsAndMessaging::{ShowWindow, SW_HIDE};
+
+    unsafe {
+        let mut pids = [0u32; 16];
+        let attached = GetConsoleProcessList(&mut pids);
+        // attached == 1：控制台是随本进程创建的（双击场景）
+        // attached > 1：父 shell（cmd/PowerShell）也附着在上面，不能隐藏
+        if attached == 1 {
+            let hwnd = GetConsoleWindow();
+            if !hwnd.is_invalid() {
+                let _ = ShowWindow(hwnd, SW_HIDE);
+            }
+        }
+    }
+}
+
+#[cfg(not(windows))]
+pub fn hide_console_if_owned() {}
+
 pub fn run_gui() -> ExitCode {
     let options = NativeOptions {
         viewport: egui::viewport::ViewportBuilder::default()

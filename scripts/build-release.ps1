@@ -30,14 +30,15 @@ Push-Location $root
 try {
     # the `dev` profile writes to target/debug
     $profileDir = if ($Profile -eq 'dev') { 'debug' } else { $Profile }
-    $builtExe = Join-Path $root "target/$profileDir/port-scan-rs.exe"
+    $binDir = Join-Path $root "target/$profileDir"
 
     $outDir = Join-Path $root $OutDir
     New-Item -ItemType Directory -Force -Path $outDir | Out-Null
 
-    function Copy-Artifact([string]$target) {
-        if (-not (Test-Path $builtExe)) { throw "build artifact not found: $builtExe" }
-        Copy-Item $builtExe $target -Force
+    function Copy-Artifact([string]$source, [string]$target) {
+        $src = Join-Path $binDir $source
+        if (-not (Test-Path $src)) { throw "build artifact not found: $src" }
+        Copy-Item $src $target -Force
     }
 
     function Show-Artifact([string]$path, [string]$label) {
@@ -52,10 +53,11 @@ try {
     if ($LASTEXITCODE -ne 0) { throw "lite build failed (cargo exit code $LASTEXITCODE)" }
 
     $lite = Join-Path $outDir 'port-scan-rs-lite.exe'
-    Copy-Artifact $lite
+    Copy-Artifact 'port-scan-rs.exe' $lite
 
     # ---------- 2) full: with the pcap feature ----------
     $full = $null
+    $gui = $null
     if ($SkipFull) {
         Write-Host "[2/2] skipping full build (-SkipFull)" -ForegroundColor Yellow
     }
@@ -98,7 +100,12 @@ Or build the lite version only:
         if ($LASTEXITCODE -ne 0) { throw "full build failed (cargo exit code $LASTEXITCODE)" }
 
         $full = Join-Path $outDir 'port-scan-rs-full.exe'
-        Copy-Artifact $full
+        Copy-Artifact 'port-scan-rs.exe' $full
+
+        # 仅 GUI 的目标（Windows 子系统）：双击不会出现控制台黑窗口。
+        # 用 pcap 版本，这样 GUI 里的「网卡抓包」可用。
+        $gui = Join-Path $outDir 'port-scan-rs-gui.exe'
+        Copy-Artifact 'port-scan-rs-gui.exe' $gui
     }
 
     # ---------- 3) release zip + sha256 ----------
@@ -112,6 +119,7 @@ Or build the lite version only:
 
     $payload = @($lite)
     if ($full) { $payload += $full }
+    if ($gui) { $payload += $gui }
     foreach ($extra in @('LICENSE', 'README.md')) {
         $p = Join-Path $root $extra
         if (Test-Path $p) { $payload += $p }
@@ -129,6 +137,7 @@ Or build the lite version only:
     Write-Host "artifacts written to $outDir :" -ForegroundColor Green
     Show-Artifact $lite 'lite'
     if ($full) { Show-Artifact $full 'full' }
+    if ($gui) { Show-Artifact $gui 'gui' }
     Show-Artifact $zipPath 'zip'
     Write-Host "  sha256 $zipHash"
     Write-Host "         (also in $zipName.sha256)"
@@ -141,7 +150,8 @@ Or build the lite version only:
         Write-Host "        (check 'WinPcap API-compatible Mode'); without it the exe still starts"
         Write-Host "        and only explains how to install when ifaces / capture is used"
     }
-    Write-Host "  zip   release asset for GitHub Releases / Scoop (contains both exes + LICENSE + README)"
+    Write-Host "  gui   GUI-only exe (Windows subsystem): double-click shows no console window"
+    Write-Host "  zip   release asset for GitHub Releases / Scoop (all exes + LICENSE + README)"
 }
 finally {
     Pop-Location

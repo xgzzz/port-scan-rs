@@ -19,6 +19,8 @@ scoop install xgzzz/port-scan-rs
 - `port-scan-rs` —— 零依赖版本，`local` / `scan` / `ifaces`(系统枚举) / `analyze` / `gui` 全部可用
 - `port-scan-rs-full` —— 额外支持网卡抓包，需要自行安装 [Npcap](https://npcap.com/#download)（内核驱动无法打包分发；未安装时程序照常启动并给出安装提示）
 
+同时会创建开始菜单与桌面快捷方式，指向包内的 `port-scan-rs-gui.exe`（GUI 专用程序，双击不会出现控制台黑窗口）。
+
 ### 直接下载
 
 从 [Releases](https://github.com/xgzzz/port-scan-rs/releases) 下载 `port-scan-rs-<版本>-x64.zip`，解压即用。
@@ -92,6 +94,9 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\build-release.ps1
 |---|---|---|
 | `dist/port-scan-rs-lite.exe` | 默认 | 零外部依赖，`local` / `scan` / `ifaces`(系统枚举) / `analyze` / `gui` 全部可用，无网卡抓包 |
 | `dist/port-scan-rs-full.exe` | `pcap` | 额外支持网卡抓包；目标机器需自行安装 Npcap（未装时程序照常启动并给出安装引导） |
+| `dist/port-scan-rs-gui.exe` | `pcap` | GUI 专用（Windows 子系统），双击**不会出现控制台黑窗口**；随 zip 一起分发 |
+
+> 三个可执行文件由同一套代码编译：`port-scan-rs.exe` / `port-scan-rs-gui.exe` 是同一 package 的两个 bin 目标，区别只在于 PE 子系统（控制台 / GUI）。
 
 脚本会自动在 `%NPCAP_SDK_DIR%\Lib\x64`、`%USERPROFILE%\npcap-sdk\Lib\x64`、`C:\npcap-sdk\Lib\x64`、`C:\Program Files\Npcap\SDK\Lib\x64` 中寻找 `wpcap.lib`，也可以显式指定：
 

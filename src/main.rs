@@ -1,12 +1,6 @@
-mod capture;
-mod gui;
-mod parser;
-mod scanner;
-mod stats;
-mod table;
-
 use clap::{Parser, Subcommand};
 use colored::*;
+use port_scan_rs::{capture, gui, parser, scanner};
 use std::process::ExitCode;
 
 #[derive(Parser)]
@@ -118,6 +112,8 @@ async fn main() -> ExitCode {
     // 无参数时默认启动 GUI（双击 .exe 的场景）
     let args: Vec<String> = std::env::args().collect();
     if args.len() == 1 {
+        // 双击控制台程序时系统会开一个黑窗口，这里把它收起来（仅当这个控制台是我们自己的）
+        gui::hide_console_if_owned();
         gui::run_gui()
     } else {
         let cli = Cli::parse();
