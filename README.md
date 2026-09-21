@@ -1,5 +1,7 @@
 # port-scan-rs
 
+<img src="assets/icon/port-scan-rs-256.png" width="88" align="right" alt="port-scan-rs 图标">
+
 ![ci](https://github.com/xgzzz/port-scan-rs/actions/workflows/ci.yml/badge.svg)
 ![license](https://img.shields.io/badge/license-MIT-blue)
 
@@ -219,10 +221,14 @@ port-scan-rs.exe gui
 ```
 port-scan-rs/
 ├── Cargo.toml
-├── build.rs              # Windows + pcap 时把 wpcap.dll 改为延迟加载
+├── build.rs              # 嵌入 exe 图标；Windows + pcap 时把 wpcap.dll 改为延迟加载
 ├── .github/workflows/    # ci.yml（push/PR 编译校验）、release.yml（打 tag 自动发版）
+├── assets/
+│   ├── fonts/            # 内嵌中文字体（文泉驿微米黑）
+│   └── icon/             # 应用图标（.ico/.rc，编译进 exe）
 ├── scripts/
-│   └── build-release.ps1 # 一键产出 lite / full 两个 exe，并打包 zip + sha256
+│   ├── build-release.ps1 # 一键产出 lite / full 两个 exe，并打包 zip + sha256
+│   └── make-icon.py      # 生成应用图标（需 Pillow，按尺寸分层渲染保证小图标清晰）
 ├── src/
 │   ├── main.rs          # CLI 入口
 │   ├── stats.rs         # 协议统计、TCP 流重组、握手时间线

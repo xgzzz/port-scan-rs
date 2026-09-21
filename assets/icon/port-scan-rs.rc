@@ -1,0 +1,4 @@
+// 把应用图标编译进 exe 资源（资源 ID 1 = 最低序号的图标，Windows 取它作为 exe 图标）。
+// 快捷方式未指定 IconLocation 时会自动继承目标 exe 的图标，所以这里设置一次即可。
+// 图标由 scripts/make-icon.py 生成。
+1 ICON "port-scan-rs.ico"

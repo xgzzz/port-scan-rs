@@ -39,6 +39,11 @@ windows = { version = "0.58", features = [
     "Win32_UI_WindowsAndMessaging",
 ] }
 
+[build-dependencies]
+# 把应用图标（assets/icon/port-scan-rs.ico）编译进 exe 资源：
+# 资源管理器、任务栏与快捷方式都会显示这个图标
+embed-resource = "3"
+
 [features]
 default = []
 # 启用网卡抓包（需系统已安装 libpcap / Npcap）
