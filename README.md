@@ -201,6 +201,11 @@ port-scan-rs.exe gui
 - **colored** — 终端彩色输出
 - **pcap**（可选） — 网卡抓包
 
+## 第三方资源
+
+- GUI 中文字体：[文泉驿微米黑](https://github.com/anthonyfok/fonts-wqy-microhei)（Apache-2.0），内嵌于 exe，授权文本见 `assets/fonts/wqy-microhei.LICENSE.txt`
+- 网卡抓包依赖 [Npcap](https://npcap.com/)（仅 `port-scan-rs-full` 需要，需用户自行安装，本项目不再分发其组件）
+
 ## 项目结构
 
 ```

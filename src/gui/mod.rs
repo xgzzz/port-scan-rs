@@ -7,8 +7,8 @@ use std::process::ExitCode;
 mod app;
 pub mod capture_engine;
 
-/// 嵌入幼圆中文字体（~6MB），解决 GUI 中文乱码
-const CN_FONT_BYTES: &[u8] = include_bytes!("../../assets/fonts/simyou.ttf");
+/// 嵌入中文字体：文泉驿微米黑（Apache-2.0，可自由再分发），解决 GUI 中文乱码
+const CN_FONT_BYTES: &[u8] = include_bytes!("../../assets/fonts/wqy-microhei.ttc");
 
 pub fn run_gui() -> ExitCode {
     let options = NativeOptions {
