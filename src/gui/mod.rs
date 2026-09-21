@@ -6,6 +6,7 @@ use std::process::ExitCode;
 
 mod app;
 pub mod capture_engine;
+pub mod theme;
 
 /// 嵌入中文字体：文泉驿微米黑（Apache-2.0，可自由再分发），解决 GUI 中文乱码
 const CN_FONT_BYTES: &[u8] = include_bytes!("../../assets/fonts/wqy-microhei.ttc");
@@ -40,7 +41,8 @@ pub fn hide_console_if_owned() {}
 pub fn run_gui() -> ExitCode {
     let options = NativeOptions {
         viewport: egui::viewport::ViewportBuilder::default()
-            .with_inner_size([1100.0, 750.0])
+            .with_inner_size([1280.0, 820.0])
+            .with_min_inner_size([980.0, 640.0])
             .with_title("Port-Scan-GUI"),
         ..Default::default()
     };
@@ -64,6 +66,10 @@ pub fn run_gui() -> ExitCode {
                 .or_default()
                 .push("CN".into());
 
+            // emoji 由 egui 自带的 NotoEmoji / emoji-icon-font 回退渲染。
+            // 注意：文案里不要出现「变体选择符 U+FE0F」——它没有独立字形，会被渲染成
+            // 一个缺字形方框，看起来就像乱码。写 emoji 时只写基础码位即可
+            // （例如桌面电脑只写 U+1F5A5，后面不要再跟 U+FE0F）。
             cc.egui_ctx.set_fonts(font_defs);
 
             Ok(Box::new(app::App::default()))

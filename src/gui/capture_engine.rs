@@ -139,7 +139,7 @@ fn capture_loop(
     };
 
     let _ = tx.send(CaptureLog::Status(format!(
-        "▶️ 开始监听 {}，可访问该端口产生流量",
+        "▶ 开始监听 {}，可访问该端口产生流量",
         addr
     )));
 
@@ -160,7 +160,7 @@ fn capture_loop(
                 }
                 Err(e) => {
                     let _ = tx.send(CaptureLog::Status(format!(
-                        "⚠️ accept 错误: {}",
+                        "⚠ accept 错误: {}",
                         e
                     )));
                     break None;
@@ -205,7 +205,7 @@ fn capture_connection(
                 continue; // 超时，继续
             }
             Err(e) => {
-                let _ = tx.send(CaptureLog::Status(format!("⚠️ 读取错误: {}", e)));
+                let _ = tx.send(CaptureLog::Status(format!("⚠ 读取错误: {}", e)));
                 break;
             }
         };
