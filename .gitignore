@@ -9,9 +9,6 @@
 *.pcap
 !test.pcap
 
-# 未被代码引用的字体（微软雅黑，18MB，且不可再分发）
-/assets/fonts/msyh.ttc
-
 # 编辑器
 .vscode/
 .idea/
